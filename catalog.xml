@@ -1,0 +1,20 @@
+<!DOCTYPE catalog
+  PUBLIC "-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN"
+         "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog"
+         prefer="public">
+  <uri name="http://www.example.org/uri/"
+       uri="file:///projects/example/uri/"/>
+
+  <rewriteURI uriStartString="http://www.example.org/rewrite"
+	      rewritePrefix="file:///usr/share/example/rewrite"/>
+
+  <rewriteURI uriStartString="http://www.example.org/rewrite/more-specific"
+	      rewritePrefix="file:///usr/share/example/rewrite/elsewhere"/>
+
+  <uriSuffix uriSuffix="suffix/test.html"
+	     uri="http://www.example2.org/suffix/test.html"/>
+
+  <uriSuffix uriSuffix="suffix/more-specific/test.html"
+	     uri="http://www.example2.org/suffix/elsewhere/test.html"/>
+</catalog>
