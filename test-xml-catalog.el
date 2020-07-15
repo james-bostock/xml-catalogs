@@ -30,27 +30,51 @@
 
 (require 'xml-catalog)
 
-(ert-deftest xml-catalog-test-resolve-uri ()
+(ert-deftest xml-catalog-test-resolve-uri-1 ()
   "Test the resolution of URIs."
   (let ((catalog (xml-catalog-load-catalog "catalog.xml")))
     (should (equal "file:///projects/example/uri/"
-		   (xml-catalog-resolve-uri "http://www.example.org/uri/" catalog)))
+		   (xml-catalog-resolve-uri "http://www.example.org/uri/" catalog)))))
+
+(ert-deftest xml-catalog-test-resolve-uri-2 ()
+  "Test the resolution of URIs."
+  (let ((catalog (xml-catalog-load-catalog "catalog.xml")))
+    (should (equal "file:///projects/example/xmlbase/uri/"
+		   (xml-catalog-resolve-uri "http://www.example.org/xmlbase/uri/" catalog)))))
+
+(ert-deftest xml-catalog-test-resolve-uri-3 ()
+  "Test the resolution of URIs."
+  (let ((catalog (xml-catalog-load-catalog "catalog.xml")))
     (should (equal "http://www.example.org/not-in-catalog"
 		   (xml-catalog-resolve-uri "http://www.example.org/not-in-catalog" catalog)))))
 
-(ert-deftest xml-catalog-test-rewrite-uri ()
+(ert-deftest xml-catalog-test-rewrite-uri-1 ()
   "Test the rewriting of URIs."
   (let ((catalog (xml-catalog-load-catalog "catalog.xml")))
     (should (equal "file:///usr/share/example/rewrite/test"
-		   (xml-catalog-resolve-uri "http://www.example.org/rewrite/test" catalog)))
+		   (xml-catalog-resolve-uri "http://www.example.org/rewrite/test" catalog)))))
+
+(ert-deftest xml-catalog-test-rewrite-uri-2 ()
+  "Test the rewriting of URIs."
+  (let ((catalog (xml-catalog-load-catalog "catalog.xml")))
     (should (equal "file:///usr/share/example/rewrite/elsewhere/test"
 		   (xml-catalog-resolve-uri "http://www.example.org/rewrite/more-specific/test" catalog)))))
 
-(ert-deftest xml-catalog-test-uri-suffix ()
+(ert-deftest xml-catalog-test-uri-suffix-1 ()
   "Test the rewriting of URI suffixes."
   (let ((catalog (xml-catalog-load-catalog "catalog.xml")))
     (should (equal "http://www.example2.org/suffix/test.html"
-		   (xml-catalog-resolve-uri "http://www.example.org/suffix/test.html" catalog)))
+		   (xml-catalog-resolve-uri "http://www.example.org/suffix/test.html" catalog)))))
+
+(ert-deftest xml-catalog-test-uri-suffix-2 ()
+  "Test the rewriting of URI suffixes."
+  (let ((catalog (xml-catalog-load-catalog "catalog.xml")))
+    (should (equal "http://www.example2.org/suffix/xmlbase/test.html"
+		   (xml-catalog-resolve-uri "http://www.example.org/suffix/xmlbase/test.html" catalog)))))
+
+(ert-deftest xml-catalog-test-uri-suffix-3 ()
+  "Test the rewriting of URI suffixes."
+  (let ((catalog (xml-catalog-load-catalog "catalog.xml")))
     (should (equal "http://www.example2.org/suffix/elsewhere/test.html"
 		   (xml-catalog-resolve-uri "http://www.example.org/suffix/more-specific/test.html" catalog)))))
 

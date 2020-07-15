@@ -6,6 +6,9 @@
   <uri name="http://www.example.org/uri/"
        uri="file:///projects/example/uri/"/>
 
+  <uri name="http://www.example.org/xmlbase/uri/"
+       uri="uri/" xml:base="file:///projects/example/xmlbase/"/>
+
   <rewriteURI uriStartString="http://www.example.org/rewrite"
 	      rewritePrefix="file:///usr/share/example/rewrite"/>
 
@@ -17,4 +20,8 @@
 
   <uriSuffix uriSuffix="suffix/more-specific/test.html"
 	     uri="http://www.example2.org/suffix/elsewhere/test.html"/>
+
+  <uriSuffix uriSuffix="suffix/xmlbase/test.html"
+	     uri="suffix/xmlbase/test.html"
+	     xml:base="http://www.example2.org/"/>
 </catalog>
