@@ -52,6 +52,12 @@
 (defconst xml-catalog-catalog-namespace-uri
   (nxml-make-namespace "urn:oasis:names:tc:entity:xmlns:xml:catalog"))
 
+(defconst xml-catalog-xml-namespace-uri
+  (nxml-make-namespace "http://www.w3.org/XML/1998/namespace"))
+
+(defconst xml-catalog--xml-base-attr
+  (cons xml-catalog-xml-namespace-uri "base"))
+
 (defun xml-catalog-load-catalogs ()
   "Load the XML catalogs listed in xml-catalog-files."
   (dolist ctlg (parse-colon-path (getenv "XML_CATALOG_FILES"))
@@ -89,7 +95,13 @@ catalog(s) in XML-CATALOG-FILES."
 			   (and (xml-catalog--elem-match-p a "uri")
 				(string= (xml-get-attribute a "name") uri)))
 			 (cddr ctlg))))
-    (xml-get-attribute-or-nil entry "uri")))
+    (if entry
+	(let ((base (xml-get-attribute entry xml-catalog--xml-base-attr))
+	      (resolved (xml-get-attribute-or-nil entry "uri")))
+	  (if resolved
+	      (concat base resolved)
+	    resolved))
+      entry)))
 
 
 (defun xml-catalog--rewrite-uri (uri ctlg)
@@ -124,17 +136,16 @@ catalog(s) in XML-CATALOG-FILES."
 				 a
 			       b))
 			   (seq-filter (lambda (a)
-				       (and (xml-catalog--elem-match-p a "uriSuffix")
-					    (string-suffix-p (xml-get-attribute a "uriSuffix") uri)))
-				     (cddr ctlg))
+					 (and (xml-catalog--elem-match-p a "uriSuffix")
+					      (string-suffix-p (xml-get-attribute a "uriSuffix") uri)))
+				       (cddr ctlg))
 			   "")))
-    ; TODO: if uri is relative, need to make it absolute with the base
-    ; URI currently in effect
-    ; if entry is a string, it will be the empty string used as the
+    ; If entry is a string, it will be the empty string used as the
     ; initial value for seq-reduce.
     (if (stringp entry)
 	nil
-      (xml-get-attribute-or-nil entry "uri"))))
+      (let ((base (xml-get-attribute entry xml-catalog--xml-base-attr)))
+	(concat base (xml-get-attribute entry "uri"))))))
 
 
 (defun xml-catalog--unwrap-urn (urn)
