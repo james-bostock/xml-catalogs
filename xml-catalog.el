@@ -45,9 +45,11 @@
 (defcustom xml-catalog-prefer 'public
   "Indicates whether public or system entry matches are perferred.")
 
-; TODO: fix hard-coded absolute path
-(defvar xml-catalog-rng-schema "/home/jsb/src/emacs/xml-catalog/catalog.rnc"
-  "The Relax NG schema for OASIS XML Catalogs")
+(when load-file-name
+  (let* ((dir (file-name-directory load-file-name))
+         (file (expand-file-name "catalog.rnc" dir)))
+    (defvar xml-catalog-rng-schema file
+      "The Relax NG schema for OASIS XML Catalogs")))
 
 (defconst xml-catalog-catalog-namespace-uri
   (nxml-make-namespace "urn:oasis:names:tc:entity:xmlns:xml:catalog"))
