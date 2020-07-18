@@ -24,4 +24,12 @@
   <uriSuffix uriSuffix="suffix/xmlbase/test.html"
 	     uri="suffix/xmlbase/test.html"
 	     xml:base="http://www.example2.org/"/>
+
+  <group xml:base="file:///projects/example/group/">
+    <uri name="http://www.example.org/group/uri/"
+	 uri="uri/"/>
+
+    <uriSuffix uriSuffix="group/elsewhere/test.html"
+	       uri="suffix/group/test.html"/>
+  </group>
 </catalog>

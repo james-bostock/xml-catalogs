@@ -48,6 +48,12 @@
     (should (equal "http://www.example.org/not-in-catalog"
 		   (xml-catalog-resolve-uri "http://www.example.org/not-in-catalog" catalog)))))
 
+(ert-deftest xml-catalog-test-resolve-uri-4 ()
+  "Test the resolution of URIs."
+  (let ((catalog (xml-catalog-load-catalog "catalog.xml")))
+    (should (equal "file:///projects/example/group/uri/"
+		   (xml-catalog-resolve-uri "http://www.example.org/group/uri/" catalog)))))
+
 (ert-deftest xml-catalog-test-rewrite-uri-1 ()
   "Test the rewriting of URIs."
   (let ((catalog (xml-catalog-load-catalog "catalog.xml")))
@@ -78,6 +84,12 @@
     (should (equal "http://www.example2.org/suffix/elsewhere/test.html"
 		   (xml-catalog-resolve-uri "http://www.example.org/suffix/more-specific/test.html" catalog)))))
 
+(ert-deftest xml-catalog-test-uri-suffix-4 ()
+  "Test the rewriting of URI suffixes."
+  (let ((catalog (xml-catalog-load-catalog "catalog.xml")))
+    (should (equal "file:///projects/example/group/suffix/group/test.html"
+		   (xml-catalog-resolve-uri "http://www.example.org/suffix/group/elsewhere/test.html" catalog)))))
+
 (ert-deftest xml-catalog-test-unwrap-urn ()
   "Test the unwrapping of URNs as described in section 6.4 of the
 OASIS XML Catalogs specification."
@@ -87,3 +99,27 @@ OASIS XML Catalogs specification."
 		 (xml-catalog--unwrap-urn "urn:publicid:-:OASIS:DTD+DocBook+XML+V4.1.2:EN")))
   (should (equal "++:://;;'??#%"
 		 (xml-catalog--unwrap-urn "urn:publicid:%2b%2B%3a%3A%2f%2F%3b%3B%27%3f%3F%23%25"))))
+
+(ert-deftest xml-unset-attribute-1 ()
+  "Test the unsetting of an attribute."
+  (let* ((orig '("foo" (("attr1" . "val1") ("attr2" . "val2")) . ("body text")))
+	 (new (xml-unset-attribute orig "attr1")))
+    (should (string= "" (xml-get-attribute new "attr1")))
+    (should (string= "val2" (xml-get-attribute new "attr2")))
+    (should (stringp (car (xml-node-children new))))
+    (should (string= "body text" (car (xml-node-children new))))))
+
+(ert-deftest xml-unset-attribute-2 ()
+  "Test the unsetting of an attribute."
+  (let* ((orig '("foo" (("attr1" . "val1") ("attr2" . "val2")) . ()))
+	 (new (xml-unset-attribute orig "attr1")))
+    (should (string= "" (xml-get-attribute new "attr1")))
+    (should (string= "val2" (xml-get-attribute new "attr2")))
+    (should (not (xml-node-children new)))))
+
+(ert-deftest xml-set-attribute ()
+  "Test the setting of an attribute."
+  (let* ((orig '("foo" (("attr1" . "val1") ("attr2" . "val2")) ()))
+	 (new (xml-set-attribute orig "attr1" "val3")))
+    (should (string= "val3" (xml-get-attribute new "attr1")))
+    (should (string= "val2" (xml-get-attribute new "attr2")))))
