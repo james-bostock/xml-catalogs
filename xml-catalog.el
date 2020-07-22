@@ -69,7 +69,7 @@
   "Load the XML catalog contained in CTLG-FILE."
   (let ((schema (rng-load-schema xml-catalog-rng-schema)))
     (let ((parsed-file (rng-parse-validate-file schema ctlg-file)))
-      parsed-file)))
+      (xml-catalog--flatten parsed-file))))
 
 (defun xml-catalog--elem-match-p (object tagname &optional ns)
   "Return t if OBJECT is an NXML element with the specified TAGNAME"
@@ -194,6 +194,58 @@ Catalogs specification."
 	  (setq i (1+ i)))
 	unwrapped)
     urn))
+
+(defun xml-catalog--flatten (ctlg)
+  "Flatten CTLG. Any group elements are replaced by the elements
+  they contain. If the group element has an xml:base attribute,
+  it is copied to the containing elements."
+  (let ((newbody (xml-catalog--flatten-body (xml-node-children ctlg))))
+    (cons (xml-node-name ctlg)
+	  (cons (xml-node-attributes ctlg)
+		newbody))))
+
+(defun xml-catalog--flatten-body (body)
+  "Flatten BODY (the body of an XML  catalog)"
+  (mapcan #'xml-catalog--flatten-elem (seq-remove #'stringp body)))
+
+(defun xml-catalog--flatten-elem (elem)
+     "Flatten ELEM. If ELEM is a group element, its children are
+returned (setting their xml:base attribute to the value this
+attribute has on the group element). If ELEM is not a group
+element, return a list with ELEM as its only member."
+     (if (xml-catalog--group-p elem)
+	 (let ((xmlbase (xml-get-attribute-or-nil elem xml-catalog--xml-base-attr))
+	       (children (seq-remove #'stringp (xml-node-children elem))))
+	   (if xmlbase
+	       (seq-map (lambda (x)
+			  (xml-set-attribute x xml-catalog--xml-base-attr xmlbase))
+			children)
+	     children))
+       (list elem)))
+
+(defun xml-catalog--group-p (node)
+  "Return non-nil if NODE is a group element"
+  (and (eq xml-catalog-catalog-namespace-uri (caar node))
+       (string= "group" (cdar node))))
+
+; Should these be added to xml.el? That is why I have named them
+; without the xml-catalog prefix.
+
+(defun xml-unset-attribute (node attribute)
+  "Delete ATTRIBUTE from NODE."
+  (let ((name (xml-node-name node))
+	(newattrs (assoc-delete-all attribute (xml-node-attributes node)))
+	(children (xml-node-children node)))
+    (cons name (cons newattrs children))))
+
+(defun xml-set-attribute (node attribute value)
+  "Set ATTRIBUTE in NODE to VALUE."
+  (let* ((node2 (xml-unset-attribute node attribute))
+	 (name (xml-node-name node2))
+	 (newattrs (cons (cons attribute value)
+			 (xml-node-attributes node2)))
+	 (children (xml-node-children node2)))
+    (cons name (cons newattrs children))))
 
 (provide 'xml-catalog)
 
