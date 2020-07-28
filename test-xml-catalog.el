@@ -97,6 +97,10 @@ nextCatalog element."
     (should (equal "file:///projects/example/next/uri/"
 		   (xml-catalog-resolve-uri "http://www.example.org/next/uri/" catalog)))))
 
+(ert-deftest xml-catalog-test-non-existent-file ()
+  "Test the handling of a non-existent catalog file."
+  (should-error (xml-catalog-load-catalog "non-existent-file.xml")))
+
 (ert-deftest xml-catalog-test-unwrap-urn ()
   "Test the unwrapping of URNs as described in section 6.4 of the
 OASIS XML Catalogs specification."
