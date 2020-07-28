@@ -96,7 +96,7 @@ catalog(s) in XML-CATALOG-FILES."
   (let ((entry (seq-find (lambda (a)
 			   (and (xml-catalog--elem-match-p a "uri")
 				(string= (xml-get-attribute a "name") uri)))
-			 (cddr ctlg))))
+			 (xml-node-children ctlg))))
     (if entry
 	(let ((base (xml-get-attribute entry xml-catalog--xml-base-attr))
 	      (resolved (xml-get-attribute-or-nil entry "uri")))
@@ -118,7 +118,7 @@ catalog(s) in XML-CATALOG-FILES."
 			   (seq-filter (lambda (a)
 				       (and (xml-catalog--elem-match-p a "rewriteURI")
 					    (string-prefix-p (xml-get-attribute a "uriStartString") uri)))
-				     (cddr ctlg))
+				     (xml-node-children ctlg))
 			   "")))
     ; if entry is a string, it will be the empty string used as the
     ; initial value for seq-reduce.
@@ -140,7 +140,7 @@ catalog(s) in XML-CATALOG-FILES."
 			   (seq-filter (lambda (a)
 					 (and (xml-catalog--elem-match-p a "uriSuffix")
 					      (string-suffix-p (xml-get-attribute a "uriSuffix") uri)))
-				       (cddr ctlg))
+				       (xml-node-children ctlg))
 			   "")))
     ; If entry is a string, it will be the empty string used as the
     ; initial value for seq-reduce.
