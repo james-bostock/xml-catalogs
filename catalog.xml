@@ -32,4 +32,6 @@
     <uriSuffix uriSuffix="group/elsewhere/test.html"
 	       uri="suffix/group/test.html"/>
   </group>
+
+  <nextCatalog catalog="next-catalog.xml"/>
 </catalog>

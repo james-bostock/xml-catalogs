@@ -90,6 +90,13 @@
     (should (equal "file:///projects/example/group/suffix/group/test.html"
 		   (xml-catalog-resolve-uri "http://www.example.org/suffix/group/elsewhere/test.html" catalog)))))
 
+(ert-deftest xml-catalog-test-next-catalog-1 ()
+  "Test the searching of an additional catalog, specified by a
+nextCatalog element."
+  (let ((catalog (xml-catalog-load-catalog "catalog.xml")))
+    (should (equal "file:///projects/example/next/uri/"
+		   (xml-catalog-resolve-uri "http://www.example.org/next/uri/" catalog)))))
+
 (ert-deftest xml-catalog-test-unwrap-urn ()
   "Test the unwrapping of URNs as described in section 6.4 of the
 OASIS XML Catalogs specification."
