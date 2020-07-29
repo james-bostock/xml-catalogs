@@ -79,7 +79,8 @@
 
 (defun xml-catalog-resolve-uri (uri &optional ctlg)
   "Resolve URI. If CTLG is provided, use it instead of the
-catalog(s) in XML-CATALOG-FILES."
+catalog(s) in XML-CATALOG-FILES. Returns NIL if URI cannot be
+resolved."
   (let ((resolved-uri (xml-catalog--resolve-uri uri ctlg)))
     (if resolved-uri
 	resolved-uri
@@ -89,7 +90,7 @@ catalog(s) in XML-CATALOG-FILES."
 	  (let ((resolved-uri (xml-catalog--uri-suffix uri ctlg)))
 	    (if resolved-uri
 		resolved-uri
-	      uri)))))))
+	      nil)))))))
 
 (defun xml-catalog--resolve-uri (uri ctlg)
   "Resolve a URI in CTLG."

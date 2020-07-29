@@ -45,8 +45,7 @@
 (ert-deftest xml-catalog-test-resolve-uri-3 ()
   "Test the resolution of URIs."
   (let ((catalog (xml-catalog-load-catalog "catalog.xml")))
-    (should (equal "http://www.example.org/not-in-catalog"
-		   (xml-catalog-resolve-uri "http://www.example.org/not-in-catalog" catalog)))))
+    (should-not (xml-catalog-resolve-uri "http://www.example.org/not-in-catalog" catalog))))
 
 (ert-deftest xml-catalog-test-resolve-uri-4 ()
   "Test the resolution of URIs."
