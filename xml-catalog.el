@@ -77,20 +77,24 @@
        (eq (or ns xml-catalog-catalog-namespace-uri) (caar object))
        (string= tagname (cdar object))))
 
-(defun xml-catalog-resolve-uri (uri &optional ctlg)
-  "Resolve URI. If CTLG is provided, use it instead of the
-catalog(s) in XML-CATALOG-FILES. Returns NIL if URI cannot be
-resolved."
-  (let ((resolved-uri (xml-catalog--resolve-uri uri ctlg)))
-    (if resolved-uri
-	resolved-uri
-      (let ((resolved-uri (xml-catalog--rewrite-uri uri ctlg)))
-	(if resolved-uri
-	    resolved-uri
-	  (let ((resolved-uri (xml-catalog--uri-suffix uri ctlg)))
-	    (if resolved-uri
-		resolved-uri
-	      nil)))))))
+(defun xml-catalog-resolve-uri (uri &optional ctlgs)
+  "Resolve URI. If CTLGS is provided, use it as the list of
+catalogs to use instead of XML-CATALOG-FILES. Returns NIL if URI
+cannot be resolved."
+  (seq-some (lambda (ctlg)
+	      (let ((resolved-uri (xml-catalog--resolve-uri uri ctlg)))
+		(if resolved-uri
+		    resolved-uri
+		  (let ((resolved-uri (xml-catalog--rewrite-uri uri ctlg)))
+		    (if resolved-uri
+			resolved-uri
+		      (let ((resolved-uri (xml-catalog--uri-suffix uri ctlg)))
+			(if resolved-uri
+			    resolved-uri
+			  nil)))))))
+	    (if ctlgs
+		ctlgs
+	      xml-catalogs)))
 
 (defun xml-catalog--resolve-uri (uri ctlg)
   "Resolve a URI in CTLG."
