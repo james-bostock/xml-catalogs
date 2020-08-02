@@ -91,7 +91,11 @@ cannot be resolved."
 		      (let ((resolved-uri (xml-catalog--uri-suffix uri ctlg)))
 			(if resolved-uri
 			    resolved-uri
-			  nil)))))))
+			  (let ((resolved-uri (xml-catalog--next-catalogs uri ctlg
+									 #'xml-catalog-resolve-uri)))
+			    (if resolved-uri
+				resolved-uri
+			      nil)))))))))
 	    (if ctlgs
 		ctlgs
 	      xml-catalogs)))
@@ -154,6 +158,16 @@ cannot be resolved."
       (let ((base (xml-get-attribute entry xml-catalog--xml-base-attr)))
 	(concat base (xml-get-attribute entry "uri"))))))
 
+(defun xml-catalog--next-catalogs (uri ctlg resolve-fn)
+  "Process nextCatalog elements in CTLG."
+  (let* ((next-catalog-elems (seq-filter (lambda (a)
+					    (xml-catalog--elem-match-p a "nextCatalog"))
+					 (xml-node-children ctlg)))
+	 (next-catalog-files (seq-map (lambda (a)
+					(xml-get-attribute a "catalog"))
+				      next-catalog-elems))
+	 (next-catalogs (seq-map #'xml-catalog-load-catalog next-catalog-files)))
+    (funcall resolve-fn uri next-catalogs)))
 
 (defun xml-catalog--unwrap-urn (urn)
   "Unwrap URN as specified in section 6.4 of the OASIS XML
