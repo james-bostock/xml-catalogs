@@ -32,6 +32,7 @@
 (require 'nxml-util)
 (require 'rng-loc)
 (require 'rng-parse)
+(require 'url)
 (require 'xml)
 
 ; use defcustom?
@@ -69,7 +70,11 @@
   "Load the XML catalog contained in CTLG-FILE."
   (let ((schema (rng-load-schema xml-catalog-rng-schema)))
     (let ((parsed-file (rng-parse-validate-file schema ctlg-file)))
-      (xml-catalog--flatten parsed-file))))
+      (let ((based-file (if (xml-get-attribute-or-nil parsed-file xml-catalog--xml-base-attr)
+			    parsed-file
+			  (xml-set-attribute parsed-file xml-catalog--xml-base-attr
+					     (file-name-directory (expand-file-name ctlg-file))))))
+	(xml-catalog--flatten based-file)))))
 
 (defun xml-catalog--elem-match-p (object tagname &optional ns)
   "Return t if OBJECT is an NXML element with the specified TAGNAME"
@@ -107,12 +112,8 @@ cannot be resolved."
 				(string= (xml-get-attribute a "name") uri)))
 			 (xml-node-children ctlg))))
     (if entry
-	(let ((base (xml-get-attribute entry xml-catalog--xml-base-attr))
-	      (resolved (xml-get-attribute-or-nil entry "uri")))
-	  (if resolved
-	      (concat base resolved)
-	    resolved))
-      entry)))
+	(xml-catalog--get-attr-with-base ctlg entry "uri")
+      nil)))
 
 
 (defun xml-catalog--rewrite-uri (uri ctlg)
@@ -155,8 +156,9 @@ cannot be resolved."
     ; initial value for seq-reduce.
     (if (stringp entry)
 	nil
-      (let ((base (xml-get-attribute entry xml-catalog--xml-base-attr)))
-	(concat base (xml-get-attribute entry "uri"))))))
+      (xml-catalog--get-attr-with-base ctlg entry "uri"))))
+;      (let ((base (xml-get-attribute entry xml-catalog--xml-base-attr)))
+;	(concat base (xml-get-attribute entry "uri"))))))
 
 (defun xml-catalog--next-catalogs (uri ctlg resolve-fn)
   "Process nextCatalog elements in CTLG."
@@ -164,10 +166,33 @@ cannot be resolved."
 					    (xml-catalog--elem-match-p a "nextCatalog"))
 					 (xml-node-children ctlg)))
 	 (next-catalog-files (seq-map (lambda (a)
-					(xml-get-attribute a "catalog"))
+					(xml-catalog--get-attr-with-base ctlg a "catalog"))
 				      next-catalog-elems))
 	 (next-catalogs (seq-map #'xml-catalog-load-catalog next-catalog-files)))
     (funcall resolve-fn uri next-catalogs)))
+
+(defun xml-catalog--get-attr-with-base (ctlg elem attr)
+  "Return the value of ATTR, prepending the current xml:base
+value (which will either be the value of the xml:base attribute
+on ELEM or, if this is not present, on CTLG, which will always be
+present as we set it when we load the catalog."
+  (let* ((elem-base (xml-get-attribute-or-nil elem xml-catalog--xml-base-attr))
+	 (base (if elem-base
+		   elem-base
+		 (xml-get-attribute ctlg xml-catalog--xml-base-attr)))
+	 (val (xml-get-attribute-or-nil elem attr))
+	 ;; Note: if val is nil, url-generic-parse-url will return
+	 ;; #s(url nil nil nil nil nil nil nil nil nil nil t t)
+	 (url (url-generic-parse-url val)))
+    (if val
+	;; If url has a type, we assume that its path is absolute.
+	(if (url-type url)
+	    val
+	  (if (file-name-absolute-p val)
+	      val
+	    (concat base val)))
+      nil)))
+
 
 (defun xml-catalog--unwrap-urn (urn)
   "Unwrap URN as specified in section 6.4 of the OASIS XML
