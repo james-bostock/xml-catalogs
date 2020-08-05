@@ -89,6 +89,29 @@
     (should (equal "file:///projects/example/group/suffix/group/test.html"
 		   (xml-catalog-resolve-uri "http://www.example.org/suffix/group/elsewhere/test.html" catalogs)))))
 
+(ert-deftest xml-catalog-test-delegate-uri-1 ()
+  "Test the delegation of URI resolution."
+  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
+    (should (equal "file:///projects/example/delegate/uri/"
+		   (xml-catalog-resolve-uri "http://www.example.org/delegate/uri/" catalogs)))))
+
+(ert-deftest xml-catalog-test-delegate-uri-2 ()
+  "Test the delegation of URI resolution."
+  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
+    (should (equal "file:///projects/example/delegate/more-specific/uri/"
+		   (xml-catalog-resolve-uri "http://www.example.org/delegate/more-specific/uri/" catalogs)))))
+
+(ert-deftest xml-catalog-test-delegate-uri-3 ()
+  "Test the delegation of URI resolution."
+  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
+    (should-not (xml-catalog-resolve-uri "http://www.example.org/delegate/next/" catalogs))))
+
+(ert-deftest xml-catalog-test-delegate-uri-4 ()
+  "Test the delegation of URI resolution."
+  (let ((catalogs (list (xml-catalog-load-catalog "next-catalog.xml"))))
+    (should (equal "file:///projects/example/delegate/next/"
+		   (xml-catalog-resolve-uri "http://www.example.org/delegate/next/" catalogs)))))
+
 (ert-deftest xml-catalog-test-next-catalog-1 ()
   "Test the searching of an additional catalog, specified by a
 nextCatalog element."

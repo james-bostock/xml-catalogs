@@ -3,9 +3,6 @@
          "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog"
          prefer="public">
-  <uri name="http://www.example.org/next/uri/"
-       uri="file:///projects/example/next/uri/"/>
-
-  <uri name="http://www.example.org/delegate/next/"
-       uri="file:///projects/example/delegate/next/"/>
+  <uri name="http://www.example.org/delegate/more-specific/uri/"
+       uri="file:///projects/example/delegate/more-specific/uri/"/>
 </catalog>

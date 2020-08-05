@@ -33,5 +33,11 @@
 	       uri="suffix/group/test.html"/>
   </group>
 
+  <delegateURI uriStartString="http://www.example.org/delegate"
+	       catalog="delegate1-catalog.xml"/>
+
+  <delegateURI uriStartString="http://www.example.org/delegate/more-specific"
+	       catalog="delegate2-catalog.xml"/>
+
   <nextCatalog catalog="next-catalog.xml"/>
 </catalog>
