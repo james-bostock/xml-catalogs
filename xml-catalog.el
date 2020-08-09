@@ -86,24 +86,28 @@
   "Resolve URI. If CTLGS is provided, use it as the list of
 catalogs to use instead of XML-CATALOG-FILES. Returns NIL if URI
 cannot be resolved."
-  (seq-some (lambda (ctlg)
-	      (let ((resolved-uri (xml-catalog--resolve-uri uri ctlg)))
-		(if resolved-uri
-		    resolved-uri
-		  (let ((resolved-uri (xml-catalog--rewrite-uri uri ctlg)))
-		    (if resolved-uri
-			resolved-uri
-		      (let ((resolved-uri (xml-catalog--uri-suffix uri ctlg)))
-			(if resolved-uri
-			    resolved-uri
-			  (let ((resolved-uri (xml-catalog--next-catalogs uri ctlg
-									 #'xml-catalog-resolve-uri)))
-			    (if resolved-uri
-				resolved-uri
-			      nil)))))))))
-	    (if ctlgs
-		ctlgs
-	      xml-catalogs)))
+  (catch 'delegate-fail
+    (seq-some (lambda (ctlg)
+		(let ((resolved-uri (xml-catalog--resolve-uri uri ctlg)))
+		  (if resolved-uri
+		      resolved-uri
+		    (let ((resolved-uri (xml-catalog--rewrite-uri uri ctlg)))
+		      (if resolved-uri
+			  resolved-uri
+			(let ((resolved-uri (xml-catalog--uri-suffix uri ctlg)))
+			  (if resolved-uri
+			      resolved-uri
+			    (let ((resolved-uri (xml-catalog--delegate-uri uri ctlg)))
+			      (if resolved-uri
+				  resolved-uri
+				(let ((resolved-uri (xml-catalog--next-catalogs uri ctlg
+										#'xml-catalog-resolve-uri)))
+				  (if resolved-uri
+				      resolved-uri
+				    nil)))))))))))
+	      (if ctlgs
+		  ctlgs
+		xml-catalogs))))
 
 (defun xml-catalog--resolve-uri (uri ctlg)
   "Resolve a URI in CTLG."
@@ -159,6 +163,33 @@ cannot be resolved."
       (xml-catalog--get-attr-with-base ctlg entry "uri"))))
 ;      (let ((base (xml-get-attribute entry xml-catalog--xml-base-attr)))
 ;	(concat base (xml-get-attribute entry "uri"))))))
+
+(defun xml-catalog--delegate-uri (uri ctlg)
+  "Handle delegation of URI resolution. Searches CTLG for
+delegateURI entries whose uriStartString is a prefix of URI. If
+none are found, returns nil. If one or more are found, the
+associated catalogs are recursively passed to
+xml-catalog-resolve-uri. If the recursive invocation is not
+successful, we throw 'delegate-fail."
+
+  (let* ((delegate-catalog-elems (seq-filter (lambda (a)
+					       (and (xml-catalog--elem-match-p a "delegateURI")
+						    (string-prefix-p (xml-get-attribute a "uriStartString") uri)))
+					     (xml-node-children ctlg)))
+	 (sorted (seq-sort (lambda (a b)
+			     (> (length (xml-get-attribute a "uriStartString"))
+				(length (xml-get-attribute b "uriStartString"))))
+			   delegate-catalog-elems))
+	 (delegate-catalog-files (seq-map (lambda (a)
+					    (xml-catalog--get-attr-with-base ctlg a "catalog"))
+					  sorted))
+	 (delegate-catalogs (seq-map #'xml-catalog-load-catalog delegate-catalog-files)))
+    (if delegate-catalogs
+	(let ((resolved (xml-catalog-resolve-uri uri delegate-catalogs)))
+	  (if resolved
+	      resolved
+	    (throw 'delegate-fail nil)))
+      nil)))
 
 (defun xml-catalog--next-catalogs (uri ctlg resolve-fn)
   "Process nextCatalog elements in CTLG."
