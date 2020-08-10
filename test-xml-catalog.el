@@ -123,6 +123,13 @@ nextCatalog element."
   "Test the handling of a non-existent catalog file."
   (should-error (xml-catalog-load-catalog "non-existent-file.xml")))
 
+(ert-deftest xml-catalog-test-circular-catalog-1 ()
+  "Test the handling of circular catalogs."
+  (let ((catalogs (list (xml-catalog-load-catalog "circular-catalog-1.xml"))))
+    (let ((error (should-error (xml-catalog-resolve-uri "http://www.example.org/not-in-catalog" catalogs))))
+      (should (equal 'error (car error)))
+      (should (equal "Lisp nesting exceeds ‘max-lisp-eval-depth’" (cadr error))))))
+
 (ert-deftest xml-catalog-test-unwrap-urn ()
   "Test the unwrapping of URNs as described in section 6.4 of the
 OASIS XML Catalogs specification."
