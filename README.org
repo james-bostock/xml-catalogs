@@ -5,17 +5,21 @@ Emacs text editor.
 
 * Limitations
 
-Currently, only supports URI mapping.
+Beyond being very much a work in progress, currently, only URI mapping
+is supported.
+
+The code assumes that the Relax NG compact schema for XML Catalogs,
+~catalog.rnc~, is in the same directory as the ~xml-catalogs.el~ file.
 
 * Testing
 
-On Unix-like systems, the ~test-xml-catalog.el~ script can be run
+On Unix-like systems, the ~test-xml-catalogs.el~ script can be run
 directly:
 
 #+begin_src
-$ ./test-xml-catalog.el
+$ ./test-xml-catalogs.el
 Running 21 tests (2021-08-22 13:59:31+1000, selector ‘t’)
-   passed   1/21  xml-catalog-test-circular-catalog-1 (0.167932 sec)
+   passed   1/21  xml-catalogs-test-circular-catalog-1 (0.167932 sec)
 ...
    passed  21/21  xml-unset-attribute-2 (0.000047 sec)
 
