@@ -13,9 +13,7 @@ On Unix-like systems, the ~test-xml-catalog.el~ script can be run
 directly:
 
 #+begin_src
-#+end_src
 $ ./test-xml-catalog.el
-Eager macro-expansion failure: (wrong-type-argument consp ctlg)
 Running 21 tests (2021-08-22 13:59:31+1000, selector ‘t’)
    passed   1/21  xml-catalog-test-circular-catalog-1 (0.167932 sec)
 ...
