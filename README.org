@@ -1,0 +1,29 @@
+* XML Catalogs for Emacs
+
+This repository contains an implementation of [[https://www.oasis-open.org/committees/download.php/14809/xml-catalogs.html][XML Catalogs]] for the
+Emacs text editor.
+
+* Limitations
+
+Currently, only supports URI mapping.
+
+* Testing
+
+On Unix-like systems, the ~test-xml-catalog.el~ script can be run
+directly:
+
+#+begin_src
+#+end_src
+$ ./test-xml-catalog.el
+Eager macro-expansion failure: (wrong-type-argument consp ctlg)
+Running 21 tests (2021-08-22 13:59:31+1000, selector ‘t’)
+   passed   1/21  xml-catalog-test-circular-catalog-1 (0.167932 sec)
+...
+   passed  21/21  xml-unset-attribute-2 (0.000047 sec)
+
+Ran 21 tests, 21 results as expected, 0 unexpected (2021-08-22 13:59:31+1000, 0.221330 sec)
+#+end_src
+
+# Local Variables:
+# coding: utf-8-unix
+# End:
