@@ -1,4 +1,4 @@
-;;; xml-catalog.el --- an implementation of XML Catalogs for Emacs -*- lexical-binding: t; -*-
+;;; xml-catalogs.el --- an implementation of XML Catalogs for Emacs -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020 James Bostock
 
@@ -36,72 +36,72 @@
 (require 'xml)
 
 ; use defcustom?
-(defvar xml-catalog-files nil
+(defvar xml-catalogs-files nil
   "A list of XML Catalog files that should be searched when
   resolving entities.")
 
 (defvar xml-catalogs nil
   "A list of XML catalogs.")
 
-(defcustom xml-catalog-prefer 'public
+(defcustom xml-catalogs-prefer 'public
   "Indicates whether public or system entry matches are perferred.")
 
 (when load-file-name
   (let* ((dir (file-name-directory load-file-name))
          (file (expand-file-name "catalog.rnc" dir)))
-    (defvar xml-catalog-rng-schema file
+    (defvar xml-catalogs-rng-schema file
       "The Relax NG schema for OASIS XML Catalogs")))
 
-(defconst xml-catalog-catalog-namespace-uri
+(defconst xml-catalogs-catalog-namespace-uri
   (nxml-make-namespace "urn:oasis:names:tc:entity:xmlns:xml:catalog"))
 
-(defconst xml-catalog-xml-namespace-uri
+(defconst xml-catalogs-xml-namespace-uri
   (nxml-make-namespace "http://www.w3.org/XML/1998/namespace"))
 
-(defconst xml-catalog--xml-base-attr
-  (cons xml-catalog-xml-namespace-uri "base"))
+(defconst xml-catalogs--xml-base-attr
+  (cons xml-catalogs-xml-namespace-uri "base"))
 
-(defun xml-catalog-load-catalogs ()
-  "Load the XML catalogs listed in xml-catalog-files."
-  (dolist ctlg (parse-colon-path (getenv "XML_CATALOG_FILES"))
-	  (xml-catalog-load-catalog ctlg)))
+(defun xml-catalogs-load-catalogs ()
+  "Load the XML catalogs listed in xml-catalogs-files."
+  (dolist (ctlg (parse-colon-path (getenv "XML_CATALOG_FILES")))
+	  (xml-catalogs-load-catalog ctlg)))
 
-(defun xml-catalog-load-catalog (ctlg-file)
+(defun xml-catalogs-load-catalog (ctlg-file)
   "Load the XML catalog contained in CTLG-FILE."
-  (let ((schema (rng-load-schema xml-catalog-rng-schema)))
+  (let ((schema (rng-load-schema xml-catalogs-rng-schema)))
     (let ((parsed-file (rng-parse-validate-file schema ctlg-file)))
-      (let ((based-file (if (xml-get-attribute-or-nil parsed-file xml-catalog--xml-base-attr)
+      (let ((based-file (if (xml-get-attribute-or-nil parsed-file xml-catalogs--xml-base-attr)
 			    parsed-file
-			  (xml-set-attribute parsed-file xml-catalog--xml-base-attr
+			  (xml-set-attribute parsed-file xml-catalogs--xml-base-attr
 					     (file-name-directory (expand-file-name ctlg-file))))))
-	(xml-catalog--flatten based-file)))))
+	(xml-catalogs--flatten based-file)))))
 
-(defun xml-catalog--elem-match-p (object tagname &optional ns)
+(defun xml-catalogs--elem-match-p (object tagname &optional ns)
   "Return t if OBJECT is an NXML element with the specified TAGNAME"
   (and (consp object)
-       (eq (or ns xml-catalog-catalog-namespace-uri) (caar object))
+       (eq (or ns xml-catalogs-catalog-namespace-uri) (caar object))
        (string= tagname (cdar object))))
 
-(defun xml-catalog-resolve-uri (uri &optional ctlgs)
+(defun xml-catalogs-resolve-uri (uri &optional ctlgs)
   "Resolve URI. If CTLGS is provided, use it as the list of
-catalogs to use instead of XML-CATALOG-FILES. Returns NIL if URI
+catalogs to use instead of XML-CATALOGS-FILES. Returns NIL if URI
 cannot be resolved."
   (catch 'delegate-fail
     (seq-some (lambda (ctlg)
-		(let ((resolved-uri (xml-catalog--resolve-uri uri ctlg)))
+		(let ((resolved-uri (xml-catalogs--resolve-uri uri ctlg)))
 		  (if resolved-uri
 		      resolved-uri
-		    (let ((resolved-uri (xml-catalog--rewrite-uri uri ctlg)))
+		    (let ((resolved-uri (xml-catalogs--rewrite-uri uri ctlg)))
 		      (if resolved-uri
 			  resolved-uri
-			(let ((resolved-uri (xml-catalog--uri-suffix uri ctlg)))
+			(let ((resolved-uri (xml-catalogs--uri-suffix uri ctlg)))
 			  (if resolved-uri
 			      resolved-uri
-			    (let ((resolved-uri (xml-catalog--delegate-uri uri ctlg)))
+			    (let ((resolved-uri (xml-catalogs--delegate-uri uri ctlg)))
 			      (if resolved-uri
 				  resolved-uri
-				(let ((resolved-uri (xml-catalog--next-catalogs uri ctlg
-										#'xml-catalog-resolve-uri)))
+				(let ((resolved-uri (xml-catalogs--next-catalogs uri ctlg
+										#'xml-catalogs-resolve-uri)))
 				  (if resolved-uri
 				      resolved-uri
 				    nil)))))))))))
@@ -109,18 +109,18 @@ cannot be resolved."
 		  ctlgs
 		xml-catalogs))))
 
-(defun xml-catalog--resolve-uri (uri ctlg)
+(defun xml-catalogs--resolve-uri (uri ctlg)
   "Resolve a URI in CTLG."
   (let ((entry (seq-find (lambda (a)
-			   (and (xml-catalog--elem-match-p a "uri")
+			   (and (xml-catalogs--elem-match-p a "uri")
 				(string= (xml-get-attribute a "name") uri)))
 			 (xml-node-children ctlg))))
     (if entry
-	(xml-catalog--get-attr-with-base ctlg entry "uri")
+	(xml-catalogs--get-attr-with-base ctlg entry "uri")
       nil)))
 
 
-(defun xml-catalog--rewrite-uri (uri ctlg)
+(defun xml-catalogs--rewrite-uri (uri ctlg)
   "Rewrite URI"
   ; We take advantage of lisp's dynamic typing: we set the initial
   ; value to the empty string but, if we find a matching rewriteUri
@@ -130,7 +130,7 @@ cannot be resolved."
 				 a
 			       b))
 			   (seq-filter (lambda (a)
-				       (and (xml-catalog--elem-match-p a "rewriteURI")
+				       (and (xml-catalogs--elem-match-p a "rewriteURI")
 					    (string-prefix-p (xml-get-attribute a "uriStartString") uri)))
 				     (xml-node-children ctlg))
 			   "")))
@@ -142,7 +142,7 @@ cannot be resolved."
 	      (substring uri (length (xml-get-attribute-or-nil entry "uriStartString")))))))
 
 
-(defun xml-catalog--uri-suffix (uri ctlg)
+(defun xml-catalogs--uri-suffix (uri ctlg)
   "URI suffix"
   ; We take advantage of lisp's dynamic typing: we set the initial
   ; value to the empty string but, if we find a matching uriSuffix
@@ -152,7 +152,7 @@ cannot be resolved."
 				 a
 			       b))
 			   (seq-filter (lambda (a)
-					 (and (xml-catalog--elem-match-p a "uriSuffix")
+					 (and (xml-catalogs--elem-match-p a "uriSuffix")
 					      (string-suffix-p (xml-get-attribute a "uriSuffix") uri)))
 				       (xml-node-children ctlg))
 			   "")))
@@ -160,20 +160,20 @@ cannot be resolved."
     ; initial value for seq-reduce.
     (if (stringp entry)
 	nil
-      (xml-catalog--get-attr-with-base ctlg entry "uri"))))
-;      (let ((base (xml-get-attribute entry xml-catalog--xml-base-attr)))
+      (xml-catalogs--get-attr-with-base ctlg entry "uri"))))
+;      (let ((base (xml-get-attribute entry xml-catalogs--xml-base-attr)))
 ;	(concat base (xml-get-attribute entry "uri"))))))
 
-(defun xml-catalog--delegate-uri (uri ctlg)
+(defun xml-catalogs--delegate-uri (uri ctlg)
   "Handle delegation of URI resolution. Searches CTLG for
 delegateURI entries whose uriStartString is a prefix of URI. If
 none are found, returns nil. If one or more are found, the
 associated catalogs are recursively passed to
-xml-catalog-resolve-uri. If the recursive invocation is not
+xml-catalogs-resolve-uri. If the recursive invocation is not
 successful, we throw 'delegate-fail."
 
   (let* ((delegate-catalog-elems (seq-filter (lambda (a)
-					       (and (xml-catalog--elem-match-p a "delegateURI")
+					       (and (xml-catalogs--elem-match-p a "delegateURI")
 						    (string-prefix-p (xml-get-attribute a "uriStartString") uri)))
 					     (xml-node-children ctlg)))
 	 (sorted (seq-sort (lambda (a b)
@@ -181,36 +181,36 @@ successful, we throw 'delegate-fail."
 				(length (xml-get-attribute b "uriStartString"))))
 			   delegate-catalog-elems))
 	 (delegate-catalog-files (seq-map (lambda (a)
-					    (xml-catalog--get-attr-with-base ctlg a "catalog"))
+					    (xml-catalogs--get-attr-with-base ctlg a "catalog"))
 					  sorted))
-	 (delegate-catalogs (seq-map #'xml-catalog-load-catalog delegate-catalog-files)))
+	 (delegate-catalogs (seq-map #'xml-catalogs-load-catalog delegate-catalog-files)))
     (if delegate-catalogs
-	(let ((resolved (xml-catalog-resolve-uri uri delegate-catalogs)))
+	(let ((resolved (xml-catalogs-resolve-uri uri delegate-catalogs)))
 	  (if resolved
 	      resolved
 	    (throw 'delegate-fail nil)))
       nil)))
 
-(defun xml-catalog--next-catalogs (uri ctlg resolve-fn)
+(defun xml-catalogs--next-catalogs (uri ctlg resolve-fn)
   "Process nextCatalog elements in CTLG."
   (let* ((next-catalog-elems (seq-filter (lambda (a)
-					    (xml-catalog--elem-match-p a "nextCatalog"))
+					    (xml-catalogs--elem-match-p a "nextCatalog"))
 					 (xml-node-children ctlg)))
 	 (next-catalog-files (seq-map (lambda (a)
-					(xml-catalog--get-attr-with-base ctlg a "catalog"))
+					(xml-catalogs--get-attr-with-base ctlg a "catalog"))
 				      next-catalog-elems))
-	 (next-catalogs (seq-map #'xml-catalog-load-catalog next-catalog-files)))
+	 (next-catalogs (seq-map #'xml-catalogs-load-catalog next-catalog-files)))
     (funcall resolve-fn uri next-catalogs)))
 
-(defun xml-catalog--get-attr-with-base (ctlg elem attr)
+(defun xml-catalogs--get-attr-with-base (ctlg elem attr)
   "Return the value of ATTR, prepending the current xml:base
 value (which will either be the value of the xml:base attribute
 on ELEM or, if this is not present, on CTLG, which will always be
 present as we set it when we load the catalog."
-  (let* ((elem-base (xml-get-attribute-or-nil elem xml-catalog--xml-base-attr))
+  (let* ((elem-base (xml-get-attribute-or-nil elem xml-catalogs--xml-base-attr))
 	 (base (if elem-base
 		   elem-base
-		 (xml-get-attribute ctlg xml-catalog--xml-base-attr)))
+		 (xml-get-attribute ctlg xml-catalogs--xml-base-attr)))
 	 (val (xml-get-attribute-or-nil elem attr))
 	 ;; Note: if val is nil, url-generic-parse-url will return
 	 ;; #s(url nil nil nil nil nil nil nil nil nil nil t t)
@@ -225,7 +225,7 @@ present as we set it when we load the catalog."
       nil)))
 
 
-(defun xml-catalog--unwrap-urn (urn)
+(defun xml-catalogs--unwrap-urn (urn)
   "Unwrap URN as specified in section 6.4 of the OASIS XML
 Catalogs specification."
   (if (string-prefix-p "urn:publicid:" urn)
@@ -270,37 +270,37 @@ Catalogs specification."
 	unwrapped)
     urn))
 
-(defun xml-catalog--flatten (ctlg)
+(defun xml-catalogs--flatten (ctlg)
   "Flatten CTLG. Any group elements are replaced by the elements
   they contain. If the group element has an xml:base attribute,
   it is copied to the containing elements."
-  (let ((newbody (xml-catalog--flatten-body (xml-node-children ctlg))))
+  (let ((newbody (xml-catalogs--flatten-body (xml-node-children ctlg))))
     (cons (xml-node-name ctlg)
 	  (cons (xml-node-attributes ctlg)
 		newbody))))
 
-(defun xml-catalog--flatten-body (body)
+(defun xml-catalogs--flatten-body (body)
   "Flatten BODY (the body of an XML  catalog)"
-  (mapcan #'xml-catalog--flatten-elem (seq-remove #'stringp body)))
+  (mapcan #'xml-catalogs--flatten-elem (seq-remove #'stringp body)))
 
-(defun xml-catalog--flatten-elem (elem)
+(defun xml-catalogs--flatten-elem (elem)
      "Flatten ELEM. If ELEM is a group element, its children are
 returned (setting their xml:base attribute to the value this
 attribute has on the group element). If ELEM is not a group
 element, return a list with ELEM as its only member."
-     (if (xml-catalog--group-p elem)
-	 (let ((xmlbase (xml-get-attribute-or-nil elem xml-catalog--xml-base-attr))
+     (if (xml-catalogs--group-p elem)
+	 (let ((xmlbase (xml-get-attribute-or-nil elem xml-catalogs--xml-base-attr))
 	       (children (seq-remove #'stringp (xml-node-children elem))))
 	   (if xmlbase
 	       (seq-map (lambda (x)
-			  (xml-set-attribute x xml-catalog--xml-base-attr xmlbase))
+			  (xml-set-attribute x xml-catalogs--xml-base-attr xmlbase))
 			children)
 	     children))
        (list elem)))
 
-(defun xml-catalog--group-p (node)
+(defun xml-catalogs--group-p (node)
   "Return non-nil if NODE is a group element"
-  (and (eq xml-catalog-catalog-namespace-uri (caar node))
+  (and (eq xml-catalogs-catalog-namespace-uri (caar node))
        (string= "group" (cdar node))))
 
 ; Should these be added to xml.el? That is why I have named them
@@ -322,6 +322,6 @@ element, return a list with ELEM as its only member."
 	 (children (xml-node-children node2)))
     (cons name (cons newattrs children))))
 
-(provide 'xml-catalog)
+(provide 'xml-catalogs)
 
 ;;; xml-catalog.el ends here

@@ -1,5 +1,5 @@
 #!/bin/sh
-":"; exec emacs -batch -L . -l ert -l test-xml-catalog.el -f ert-run-tests-batch-and-exit # -*- mode: emacs-lisp; -*-
+":"; exec emacs -batch -L . -l ert -l test-xml-catalogs.el -f ert-run-tests-batch-and-exit # -*- mode: emacs-lisp; -*-
 
 ;; Copyright (C) 2020 James Bostock
 
@@ -22,123 +22,123 @@
 
 ;;; Commentary
 
-;; Unit tests for xml-catalog.el.
+;; Unit tests for xml-catalogs.el.
 ;;
 ;; https://www.oasis-open.org/committees/download.php/14809/xml-catalogs.html
 
 ;;; Code
 
-(require 'xml-catalog)
+(require 'xml-catalogs)
 
-(ert-deftest xml-catalog-test-resolve-uri-1 ()
+(ert-deftest xml-catalogs-test-resolve-uri-1 ()
   "Test the resolution of URIs."
-  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
+  (let ((catalogs (list (xml-catalogs-load-catalog "catalog.xml"))))
     (should (equal "file:///projects/example/uri/"
-		   (xml-catalog-resolve-uri "http://www.example.org/uri/" catalogs)))))
+		   (xml-catalogs-resolve-uri "http://www.example.org/uri/" catalogs)))))
 
-(ert-deftest xml-catalog-test-resolve-uri-2 ()
+(ert-deftest xml-catalogs-test-resolve-uri-2 ()
   "Test the resolution of URIs."
-  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
+  (let ((catalogs (list (xml-catalogs-load-catalog "catalog.xml"))))
     (should (equal "file:///projects/example/xmlbase/uri/"
-		   (xml-catalog-resolve-uri "http://www.example.org/xmlbase/uri/" catalogs)))))
+		   (xml-catalogs-resolve-uri "http://www.example.org/xmlbase/uri/" catalogs)))))
 
-(ert-deftest xml-catalog-test-resolve-uri-3 ()
+(ert-deftest xml-catalogs-test-resolve-uri-3 ()
   "Test the resolution of URIs."
-  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
-    (should-not (xml-catalog-resolve-uri "http://www.example.org/not-in-catalog" catalogs))))
+  (let ((catalogs (list (xml-catalogs-load-catalog "catalog.xml"))))
+    (should-not (xml-catalogs-resolve-uri "http://www.example.org/not-in-catalog" catalogs))))
 
-(ert-deftest xml-catalog-test-resolve-uri-4 ()
+(ert-deftest xml-catalogs-test-resolve-uri-4 ()
   "Test the resolution of URIs."
-  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
+  (let ((catalogs (list (xml-catalogs-load-catalog "catalog.xml"))))
     (should (equal "file:///projects/example/group/uri/"
-		   (xml-catalog-resolve-uri "http://www.example.org/group/uri/" catalogs)))))
+		   (xml-catalogs-resolve-uri "http://www.example.org/group/uri/" catalogs)))))
 
-(ert-deftest xml-catalog-test-rewrite-uri-1 ()
+(ert-deftest xml-catalogs-test-rewrite-uri-1 ()
   "Test the rewriting of URIs."
-  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
+  (let ((catalogs (list (xml-catalogs-load-catalog "catalog.xml"))))
     (should (equal "file:///usr/share/example/rewrite/test"
-		   (xml-catalog-resolve-uri "http://www.example.org/rewrite/test" catalogs)))))
+		   (xml-catalogs-resolve-uri "http://www.example.org/rewrite/test" catalogs)))))
 
-(ert-deftest xml-catalog-test-rewrite-uri-2 ()
+(ert-deftest xml-catalogs-test-rewrite-uri-2 ()
   "Test the rewriting of URIs."
-  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
+  (let ((catalogs (list (xml-catalogs-load-catalog "catalog.xml"))))
     (should (equal "file:///usr/share/example/rewrite/elsewhere/test"
-		   (xml-catalog-resolve-uri "http://www.example.org/rewrite/more-specific/test" catalogs)))))
+		   (xml-catalogs-resolve-uri "http://www.example.org/rewrite/more-specific/test" catalogs)))))
 
-(ert-deftest xml-catalog-test-uri-suffix-1 ()
+(ert-deftest xml-catalogs-test-uri-suffix-1 ()
   "Test the rewriting of URI suffixes."
-  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
+  (let ((catalogs (list (xml-catalogs-load-catalog "catalog.xml"))))
     (should (equal "http://www.example2.org/suffix/test.html"
-		   (xml-catalog-resolve-uri "http://www.example.org/suffix/test.html" catalogs)))))
+		   (xml-catalogs-resolve-uri "http://www.example.org/suffix/test.html" catalogs)))))
 
-(ert-deftest xml-catalog-test-uri-suffix-2 ()
+(ert-deftest xml-catalogs-test-uri-suffix-2 ()
   "Test the rewriting of URI suffixes."
-  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
+  (let ((catalogs (list (xml-catalogs-load-catalog "catalog.xml"))))
     (should (equal "http://www.example2.org/suffix/xmlbase/test.html"
-		   (xml-catalog-resolve-uri "http://www.example.org/suffix/xmlbase/test.html" catalogs)))))
+		   (xml-catalogs-resolve-uri "http://www.example.org/suffix/xmlbase/test.html" catalogs)))))
 
-(ert-deftest xml-catalog-test-uri-suffix-3 ()
+(ert-deftest xml-catalogs-test-uri-suffix-3 ()
   "Test the rewriting of URI suffixes."
-  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
+  (let ((catalogs (list (xml-catalogs-load-catalog "catalog.xml"))))
     (should (equal "http://www.example2.org/suffix/elsewhere/test.html"
-		   (xml-catalog-resolve-uri "http://www.example.org/suffix/more-specific/test.html" catalogs)))))
+		   (xml-catalogs-resolve-uri "http://www.example.org/suffix/more-specific/test.html" catalogs)))))
 
-(ert-deftest xml-catalog-test-uri-suffix-4 ()
+(ert-deftest xml-catalogs-test-uri-suffix-4 ()
   "Test the rewriting of URI suffixes."
-  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
+  (let ((catalogs (list (xml-catalogs-load-catalog "catalog.xml"))))
     (should (equal "file:///projects/example/group/suffix/group/test.html"
-		   (xml-catalog-resolve-uri "http://www.example.org/suffix/group/elsewhere/test.html" catalogs)))))
+		   (xml-catalogs-resolve-uri "http://www.example.org/suffix/group/elsewhere/test.html" catalogs)))))
 
-(ert-deftest xml-catalog-test-delegate-uri-1 ()
+(ert-deftest xml-catalogs-test-delegate-uri-1 ()
   "Test the delegation of URI resolution."
-  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
+  (let ((catalogs (list (xml-catalogs-load-catalog "catalog.xml"))))
     (should (equal "file:///projects/example/delegate/uri/"
-		   (xml-catalog-resolve-uri "http://www.example.org/delegate/uri/" catalogs)))))
+		   (xml-catalogs-resolve-uri "http://www.example.org/delegate/uri/" catalogs)))))
 
-(ert-deftest xml-catalog-test-delegate-uri-2 ()
+(ert-deftest xml-catalogs-test-delegate-uri-2 ()
   "Test the delegation of URI resolution."
-  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
+  (let ((catalogs (list (xml-catalogs-load-catalog "catalog.xml"))))
     (should (equal "file:///projects/example/delegate/more-specific/uri/"
-		   (xml-catalog-resolve-uri "http://www.example.org/delegate/more-specific/uri/" catalogs)))))
+		   (xml-catalogs-resolve-uri "http://www.example.org/delegate/more-specific/uri/" catalogs)))))
 
-(ert-deftest xml-catalog-test-delegate-uri-3 ()
+(ert-deftest xml-catalogs-test-delegate-uri-3 ()
   "Test the delegation of URI resolution."
-  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
-    (should-not (xml-catalog-resolve-uri "http://www.example.org/delegate/next/" catalogs))))
+  (let ((catalogs (list (xml-catalogs-load-catalog "catalog.xml"))))
+    (should-not (xml-catalogs-resolve-uri "http://www.example.org/delegate/next/" catalogs))))
 
-(ert-deftest xml-catalog-test-delegate-uri-4 ()
+(ert-deftest xml-catalogs-test-delegate-uri-4 ()
   "Test the delegation of URI resolution."
-  (let ((catalogs (list (xml-catalog-load-catalog "next-catalog.xml"))))
+  (let ((catalogs (list (xml-catalogs-load-catalog "next-catalog.xml"))))
     (should (equal "file:///projects/example/delegate/next/"
-		   (xml-catalog-resolve-uri "http://www.example.org/delegate/next/" catalogs)))))
+		   (xml-catalogs-resolve-uri "http://www.example.org/delegate/next/" catalogs)))))
 
-(ert-deftest xml-catalog-test-next-catalog-1 ()
+(ert-deftest xml-catalogs-test-next-catalog-1 ()
   "Test the searching of an additional catalog, specified by a
 nextCatalog element."
-  (let ((catalogs (list (xml-catalog-load-catalog "catalog.xml"))))
+  (let ((catalogs (list (xml-catalogs-load-catalog "catalog.xml"))))
     (should (equal "file:///projects/example/next/uri/"
-		   (xml-catalog-resolve-uri "http://www.example.org/next/uri/" catalogs)))))
+		   (xml-catalogs-resolve-uri "http://www.example.org/next/uri/" catalogs)))))
 
-(ert-deftest xml-catalog-test-non-existent-file ()
+(ert-deftest xml-catalogs-test-non-existent-file ()
   "Test the handling of a non-existent catalog file."
-  (should-error (xml-catalog-load-catalog "non-existent-file.xml")))
+  (should-error (xml-catalogs-load-catalog "non-existent-file.xml")))
 
-(ert-deftest xml-catalog-test-circular-catalog-1 ()
+(ert-deftest xml-catalogs-test-circular-catalog-1 ()
   "Test the handling of circular catalogs."
-  (let ((catalogs (list (xml-catalog-load-catalog "circular-catalog-1.xml"))))
-    (let ((error (should-error (xml-catalog-resolve-uri "http://www.example.org/not-in-catalog" catalogs))))
+  (let ((catalogs (list (xml-catalogs-load-catalog "circular-catalog-1.xml"))))
+    (let ((error (should-error (xml-catalogs-resolve-uri "http://www.example.org/not-in-catalog" catalogs))))
       (should (equal 'error (car error)))
       (should (equal "Lisp nesting exceeds ‘max-lisp-eval-depth’" (cadr error))))))
 
-(ert-deftest xml-catalog-test-unwrap-urn ()
+(ert-deftest xml-catalogs-test-unwrap-urn ()
   "Test the unwrapping of URNs as described in section 6.4 of the
 OASIS XML Catalogs specification."
   (should (equal "http://www.example.org"
-		 (xml-catalog--unwrap-urn "http://www.example.org")))
+		 (xml-catalogs--unwrap-urn "http://www.example.org")))
   (should (equal "-//OASIS//DTD DocBook XML V4.1.2//EN"
-		 (xml-catalog--unwrap-urn "urn:publicid:-:OASIS:DTD+DocBook+XML+V4.1.2:EN")))
+		 (xml-catalogs--unwrap-urn "urn:publicid:-:OASIS:DTD+DocBook+XML+V4.1.2:EN")))
   (should (equal "++:://;;'??#%"
-		 (xml-catalog--unwrap-urn "urn:publicid:%2b%2B%3a%3A%2f%2F%3b%3B%27%3f%3F%23%25"))))
+		 (xml-catalogs--unwrap-urn "urn:publicid:%2b%2B%3a%3A%2f%2F%3b%3B%27%3f%3F%23%25"))))
 
 (ert-deftest xml-unset-attribute-1 ()
   "Test the unsetting of an attribute."
