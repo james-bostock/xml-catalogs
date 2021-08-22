@@ -1,7 +1,7 @@
 #!/bin/sh
 ":"; exec emacs -batch -L . -l ert -l test-xml-catalogs.el -f ert-run-tests-batch-and-exit # -*- mode: emacs-lisp; -*-
 
-;; Copyright (C) 2020 James Bostock
+;; Copyright (C) 2020, 2021 James Bostock
 
 ;; Author: James Bostock <james.bostock@gmail.com>
 ;; Keywords: lisp xml catalog

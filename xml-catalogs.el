@@ -1,6 +1,6 @@
 ;;; xml-catalogs.el --- an implementation of XML Catalogs for Emacs -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2020 James Bostock
+;; Copyright (C) 2020, 2021 James Bostock
 
 ;; Author: James Bostock <james.bostock@gmail.com>
 ;; Keywords: lisp xml catalog
