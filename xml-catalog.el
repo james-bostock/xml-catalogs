@@ -62,9 +62,9 @@
   (cons xml-catalog-xml-namespace-uri "base"))
 
 (defun xml-catalog-load-catalogs ()
-  "Load the XML catalogs listed in xml-catalog-files."
-  (dolist ctlg (parse-colon-path (getenv "XML_CATALOG_FILES"))
-	  (xml-catalog-load-catalog ctlg)))
+ "Load the XML catalogs listed in xml-catalog-files."
+ (dolist (ctlg (parse-colon-path (getenv "XML_CATALOG_FILES")))
+   (xml-catalog-load-catalog ctlg)))
 
 (defun xml-catalog-load-catalog (ctlg-file)
   "Load the XML catalog contained in CTLG-FILE."
