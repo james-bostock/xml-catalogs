@@ -63,7 +63,7 @@
 
 (defun xml-catalogs-load-catalogs ()
   "Load the XML catalogs listed in xml-catalogs-files."
-  (dolist (ctlg (parse-colon-path (getenv "XML_CATALOG_FILES")))
+  (dolist (ctlg (split-string (getenv "XML_CATALOG_FILES")))
 	  (xml-catalogs-load-catalog ctlg)))
 
 (defun xml-catalogs-load-catalog (ctlg-file)
