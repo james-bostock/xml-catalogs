@@ -127,8 +127,7 @@ nextCatalog element."
   "Test the handling of circular catalogs."
   (let ((catalogs (list (xml-catalogs-load-catalog "circular-catalog-1.xml"))))
     (let ((error (should-error (xml-catalogs-resolve-uri "http://www.example.org/not-in-catalog" catalogs))))
-      (should (equal 'error (car error)))
-      (should (equal "Lisp nesting exceeds ‘max-lisp-eval-depth’" (cadr error))))))
+      (should (equal 'excessive-lisp-nesting (car error))))))
 
 (ert-deftest xml-catalogs-test-unwrap-urn ()
   "Test the unwrapping of URNs as described in section 6.4 of the
