@@ -56,9 +56,14 @@
   (cons xml-catalogs-xml-namespace-uri "base"))
 
 (defun xml-catalogs-load-catalogs ()
-  "Load the XML catalogs listed in xml-catalogs-files."
-  (dolist (ctlg (split-string (getenv "XML_CATALOG_FILES")))
-	  (xml-catalogs-load-catalog ctlg)))
+  "Load the XML catalogs listed in xml-catalogs-files or, if this
+variable is not set, from the XML_CATALOG_FILES environment
+variable."
+  (let ((catalog-files (if xml-catalogs-files xml-catalogs-files
+			 (let ((xml-catalog-files (getenv "XML_CATALOG_FILES")))
+			   (if xml-catalog-files xml-catalog-files
+			     "")))))
+    (setq xml-catalogs (seq-map 'xml-catalogs-load-catalog (split-string catalog-files)))))
 
 (defun xml-catalogs-load-catalog (ctlg-file)
   "Load the XML catalog contained in CTLG-FILE."
